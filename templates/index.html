@@ -17,9 +17,10 @@
 <body>
   <h1>PDF Account Summary</h1>
   <p>Upload a statement of account pdf document and get total monthly totals for <strong>In</strong> and <strong>Out</strong> for the account.</p>
-  <form action="." method="POST">
+  <form action="." method="POST" enctype=multipart/form-data>
     <div>
       <p>File source: eg safaricom statement etc..</p>
+      <p class="form-errors">{{account_type_error}}</p>
       <select name="account-type" id="account-type-select">
         <option value="">...</option>
         <option value="safaricom">Safaricom Statement</option>
@@ -28,7 +29,7 @@
     </div>
     <div>
       <p>Safaricom file password</p>
-      <input type="text" name="safaricom-password" id="safaricom-password-input" placeholder="Safaricom files password" disabled=true>
+      <input type="text" name="safaricom-password" id="safaricom-password-input" placeholder="Safaricom files password" value="{{safaricom_password}}" disabled=true>
     </div>
     <script>
       let accountType = document.getElementById("account-type-select");
@@ -46,7 +47,7 @@
     </script>
     <div>
       <p>File to scan</p>
-      <input type="file" name="statement-file" id="statement-file" accept=".pdf">
+      <input type="file" name="statement-file" id="statement-file" accept=".pdf" required>
     </div>
     <div>
       <button type="submit" style="background-color: rgb(0, 247, 255);">Submit</button>
