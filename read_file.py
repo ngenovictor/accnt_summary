@@ -9,6 +9,7 @@ SUPPORTED_FILE_TYPES = ['safaricom']
 
 
 def parse_safaricom_statement(password, file_path):
+    all_sum = dict()
     with pikepdf.open(file_path, password=password) as pdf:
         server_file_path = file_path.replace(".pdf", "_decrypt.pdf")
         pdf.save(server_file_path)
@@ -22,7 +23,7 @@ def parse_safaricom_statement(password, file_path):
             table_df = table_df[1:]
             table_df.columns = columns
             all_tables = all_tables.append(table_df)
-        all_sum = dict()
+        
         def extract_counts(df_row):
             date = df_row['Completion Time'][:7]
             all_sum.setdefault(date, {'Paid In': 0, 'Withdrawn': 0})
@@ -32,8 +33,9 @@ def parse_safaricom_statement(password, file_path):
                 all_sum[date]['Withdrawn'] = all_sum[date]['Withdrawn'] + float(df_row['Withdrawn'].replace(',', ''))
 
         all_tables.apply(extract_counts, axis=1)
-
-        return all_sum
+        os.remove(server_file_path)
+        
+    return all_sum
 
 def parse_account_statement(file_type, password, file_path):
     if file_type == 'safaricom':

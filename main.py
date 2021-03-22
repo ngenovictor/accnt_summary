@@ -31,6 +31,7 @@ def index():
             statement_file.save(file_path) # upload file
             results = read_file.parse_account_statement(
                 account_type, safaricom_password, file_path)
+            os.remove(file_path)
 
     return render_template(
         'index.html', 
