@@ -1,5 +1,6 @@
 camelot-py==0.8.2
 flask==1.1.2
 gunicorn==20.0.4
+opencv-python==4.5.1
 pandas==1.2.3
 pikepdf==2.9.1
