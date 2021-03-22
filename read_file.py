@@ -10,10 +10,7 @@ SUPPORTED_FILE_TYPES = ['safaricom']
 
 def parse_safaricom_statement(password, file_path):
     with pikepdf.open(file_path, password=password) as pdf:
-        server_file_path = os.path.join(
-            "uploaded_files", 
-            os.path.basename(file_path)
-            )
+        server_file_path = file_path.replace(".pdf", "_decrypt.pdf")
         pdf.save(server_file_path)
         tables = camelot.read_pdf(server_file_path, pages='all', password=password)
         all_tables = pd.DataFrame()
@@ -43,8 +40,7 @@ def parse_account_statement(file_type, password, file_path):
         return parse_safaricom_statement(password, file_path)
     else:
         raise NotImplementedError()
-    
-
+        
 
 def is_pdf_file(parser, arg):
     if not str(arg).endswith(".pdf"):
