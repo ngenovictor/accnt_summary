@@ -1,10 +1,42 @@
 import argparse
+import camelot
+import PyPDF2
+import pikepdf
+import os
+import pandas as pd
 
 SUPPORTED_FILE_TYPES = ['safaricom']
 
 
 def parse_safaricom_statement(password, file_path):
-    return {"2021-01": {"In": 0, "Out": 0}}
+    with pikepdf.open(file_path, password=password) as pdf:
+        server_file_path = os.path.join(
+            "uploaded_files", 
+            os.path.basename(file_path)
+            )
+        pdf.save(server_file_path)
+        tables = camelot.read_pdf(server_file_path, pages='1', password=password)
+        all_tables = pd.DataFrame()
+        for table in tables:
+            table_df = table.df
+            columns = list(table_df.iloc[0])[0].split('\n')[:-1]
+            if 'Completion Time' not in columns:
+                continue
+            table_df = table_df[1:]
+            table_df.columns = columns
+            all_tables = all_tables.append(table_df)
+        all_sum = dict()
+        def extract_counts(df_row):
+            date = df_row['Completion Time'][:7]
+            all_sum.setdefault(date, {'Paid In': 0, 'Withdrawn': 0})
+            if df_row['Paid In']:
+                all_sum[date]['Paid In'] = all_sum[date]['Paid In'] + float(df_row['Paid In'].replace(',', ''))
+            if df_row['Withdrawn']:
+                all_sum[date]['Withdrawn'] = all_sum[date]['Withdrawn'] + float(df_row['Withdrawn'].replace(',', ''))
+
+        all_tables.apply(extract_counts, axis=1)
+
+        return all_sum
 
 def parse_account_statement(file_type, password, file_path):
     if file_type == 'safaricom':
