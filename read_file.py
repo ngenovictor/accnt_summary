@@ -15,7 +15,7 @@ def parse_safaricom_statement(password, file_path):
             os.path.basename(file_path)
             )
         pdf.save(server_file_path)
-        tables = camelot.read_pdf(server_file_path, pages='1', password=password)
+        tables = camelot.read_pdf(server_file_path, pages='all', password=password)
         all_tables = pd.DataFrame()
         for table in tables:
             table_df = table.df
