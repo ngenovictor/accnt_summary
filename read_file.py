@@ -43,7 +43,7 @@ def parse_safaricom_statement(password, file_path):
 
 def parse_kcb_statement(file_path: str) -> typing.Dict:
     all_sum = dict()
-    tables = camelot.read_pdf(file_path, pages='1,2', flavor='stream')
+    tables = camelot.read_pdf(file_path, pages='all', flavor='stream')
     all_tables = pd.DataFrame()
     
     def _extract_counts(df_row):
