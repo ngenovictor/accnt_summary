@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, send_file
+from flask import after_this_request, Flask, render_template, request, send_file
 import read_file
 import io
 import os
+import csv
+import tempfile
 
 
 app = Flask(__name__)
@@ -36,6 +38,20 @@ def index():
             results = read_file.parse_account_statement(
                 account_type, safaricom_password, file_path, equity_first_transaction_type)
             os.remove(file_path)
+            out_file_path = file_path + ".csv"
+
+            @after_this_request
+            def remove_file(response):
+                os.remove(out_file_path)
+                return response
+
+            with open(out_file_path, 'w') as out_csv:
+                writer = csv.DictWriter(out_csv, fieldnames=["date", "credit", "debit"])
+                writer.writeheader()
+                for date, result in results.items():
+                    result["date"] = date
+                    writer.writerow(result)
+            return send_file(out_file_path)
 
     return render_template(
         'index.html',
