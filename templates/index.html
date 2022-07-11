@@ -19,7 +19,7 @@
   {% if results %}
   <div>
     {% for month in results %}
-    <p>{{month}}: 
+    <p>{{month}}:
       {% for col in results[month] %}
         {{col}}: {{results[month][col]}},
       {% endfor %}
@@ -39,6 +39,7 @@
           <option value="">...</option>
           <option value="safaricom">Safaricom Statement</option>
           <option value="coop">Cooperative Bank Statement</option>
+          <option value="equity">Equity Bank Statement</option>
         </select>
       </div>
       <div>
@@ -56,7 +57,7 @@
           }
         }
         disableEnableSafPasswordInput();
-        
+
         accountType.onchange = disableEnableSafPasswordInput;
       </script>
       <div>
