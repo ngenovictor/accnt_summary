@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import read_file
 import io
 import os
@@ -22,7 +22,7 @@ def index():
             statement_file_errors = "Could not upload file. Refresh page and attach again."
         elif not statement_file.filename.endswith('.pdf'):
             statement_file_errors = "Only pdf files supported"
-        elif account_type not in ('safaricom', 'coop'):
+        elif account_type not in ('safaricom', 'coop', 'equity'):
             account_type_error = "supported account types are safaricom, coop"
         elif account_type == 'safaricom' and not safaricom_password:
             safaricom_password_error = 'Safaricom files require passwords be defined.'
@@ -34,7 +34,7 @@ def index():
             os.remove(file_path)
 
     return render_template(
-        'index.html', 
+        'index.html',
         account_type_error=account_type_error,
         safaricom_password=safaricom_password,
         statement_file_errors=statement_file_errors,
