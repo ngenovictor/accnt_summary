@@ -43,17 +43,35 @@
         </select>
       </div>
       <div>
-        <p>Safaricom file password</p>
+        <p>Safaricom file password (for safaricom files only)</p>
+        <p style="color: red;">{{safaricom_password_error}}</p>
         <input type="text" name="safaricom-password" id="safaricom-password-input" placeholder="Safaricom files password" value="{{safaricom_password}}" disabled=true>
+      </div>
+      <div>
+        <p>First transaction type at the start of the file. (for equity files only)</p>
+        <p style="color: red;">{{equity_first_transaction_type_errors}}</p>
+        <select name="first-transaction-type" id="first-transaction-type-select">
+          <option value="">...</option>
+          <option value="credit">Credit(Deposit)</option>
+          <option value="debit">Debit(Withdrawal)</option>
+        </select>
       </div>
       <script>
         let accountType = document.getElementById("account-type-select");
         let safPasswordInput = document.getElementById("safaricom-password-input");
+        let equityfirstTransactionInput = document.getElementById("first-transaction-type-select");
         function disableEnableSafPasswordInput(){
           if(accountType.value == 'safaricom'){
             safPasswordInput.disabled = false;
           } else {
             safPasswordInput.disabled = true;
+            safPasswordInput.value = "";
+          }
+          if(accountType.value == 'equity'){
+            equityfirstTransactionInput.disabled = false;
+          } else {
+            equityfirstTransactionInput.disabled = true;
+            equityfirstTransactionInput.value = "";
           }
         }
         disableEnableSafPasswordInput();
