@@ -29,15 +29,18 @@ def parse_safaricom_statement(password, file_path):
                 continue
             table_df = table_df[1:]
             table_df.columns = columns
-            all_tables = all_tables.append(table_df)
-
+            all_tables = pd.concat([all_tables, table_df])
         def extract_counts(df_row):
-            date = df_row['Completion Time'][:7]
-            all_sum.setdefault(date, {'Paid In': 0, 'Withdrawn': 0})
-            if df_row['Paid In']:
-                all_sum[date]['Paid In'] = all_sum[date]['Paid In'] + float(df_row['Paid In'].replace(',', ''))
-            if df_row['Withdrawn']:
-                all_sum[date]['Withdrawn'] = all_sum[date]['Withdrawn'] + float(df_row['Withdrawn'].replace(',', ''))
+            try:
+                date = df_row['Completion Time'][:7]
+                all_sum.setdefault(date, {'Paid In': 0, 'Withdrawn': 0})
+                if df_row['Paid In']:
+                    all_sum[date]['Paid In'] = all_sum[date]['Paid In'] + float(df_row['Paid In'].replace(',', ''))
+                if df_row['Withdrawn']:
+                    all_sum[date]['Withdrawn'] = all_sum[date]['Withdrawn'] + float(df_row['Withdrawn'].replace(',', ''))
+            except Exception:
+                print("-"*20+"Skipped"+"-"*20)
+                print(df_row)
 
         all_tables.apply(extract_counts, axis=1)
         os.remove(server_file_path)
