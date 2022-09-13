@@ -24,7 +24,7 @@ def parse_safaricom_statement(password, file_path):
         all_tables = pd.DataFrame()
         for table in tables:
             table_df = table.df
-            columns = list(table_df.iloc[0])[0].split('\n')[:-1]
+            columns = list(table_df.iloc[0])[0].split('\n')
             if 'Completion Time' not in columns:
                 continue
             table_df = table_df[1:]
