@@ -150,7 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--type","-t", choices=SUPPORTED_FILE_TYPES, help=f"Source of the file. Supported are : {SUPPORTED_FILE_TYPES}", required=True)
     parser.add_argument("--password", "-p", help="Required for encrypted files. Especially safcom files.")
     parser.add_argument("--file_path", '-f', help="Path to the pdf file to scan", type=lambda x: is_pdf_file(parser, x)  ,required=True)
-    parser.add_argument("--first_transaction_type", choices=("debit", "credit"), help="Path to the pdf file to scan")
+    parser.add_argument("--first_transaction_type", choices=("debit", "credit"), help="Required for equity files.")
     args = parser.parse_args()
     if args.type == "equity" and not args.first_transaction_type:
         raise ValueError("--first_transaction_type required for equity files.")
