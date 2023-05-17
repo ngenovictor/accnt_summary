@@ -130,3 +130,4 @@ dmypy.json
 .vscode
 uploaded_files/*.pdf
 env
+.idea
