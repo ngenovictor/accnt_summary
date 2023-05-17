@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 import typing
 
-SUPPORTED_FILE_TYPES = ['safaricom', 'kcb', 'equity']
+SUPPORTED_FILE_TYPES = ['safaricom', 'kcb', 'equity', 'dtb']
 
 
 def parse_safaricom_statement(password, file_path):
@@ -128,6 +128,48 @@ def parse_equity_statement(file_path, first_transaction_type):
             current_balance = new_balance
     return all_sum
 
+
+def format_values_to_nums(value):
+    value = value.replace(",", "")
+    return float(value)
+
+
+def parse_dtb_statement(file_path):
+    # process page by page
+    # opened file as reading (r) in binary (b) mode
+    with open(file_path, 'rb') as pdf_file:
+        num_pages = PyPDF2.PdfFileReader(pdf_file).getNumPages()
+    results = {}
+
+    def _extract_count(row):
+        month, year = row["Trn Dt"][3:].split("-")
+        out_month = f"{year}-{month}"
+        results.setdefault(out_month, {"Paid In": 0, "Withdrawn": 0})
+        results[out_month]["Paid In"] += row["Credit Amt"]
+        results[out_month]["Withdrawn"] += row["Debit Amt"]
+
+    for num_page in range(1, num_pages+1):
+        print(f"Processing {num_page}/{num_pages}")
+        tables = camelot.read_pdf(file_path, pages=str(num_page), flavor="stream")
+        for table in tables:
+            df: pd.DataFrame = table.df
+            if df.empty:
+                continue
+            columns = [x.strip() for x in df.iloc[0]]
+            if "Balance" not in columns:
+                continue
+            df.columns = columns
+            df = df.iloc[1:]
+            df = df[["Trn Dt", "Debit Amt", "Credit Amt"]]
+            df = df.replace(r'^\s*$', np.nan, regex=True)
+            df = df.dropna()
+            df["Debit Amt"] = df["Debit Amt"].apply(format_values_to_nums)
+            df["Credit Amt"] = df["Credit Amt"].apply(format_values_to_nums)
+            df.apply(_extract_count, axis=1)
+
+    return results
+
+
 def parse_account_statement(file_type, password, file_path, first_transaction_type):
     if file_type == 'safaricom':
         return parse_safaricom_statement(password, file_path)
@@ -135,8 +177,10 @@ def parse_account_statement(file_type, password, file_path, first_transaction_ty
         return parse_kcb_statement(file_path)
     elif file_type == 'equity':
         return parse_equity_statement(file_path, first_transaction_type)
+    elif file_type == 'dtb':
+        return parse_dtb_statement(file_path)
     else:
-        raise NotImplementedError()
+        raise NotImplementedError(f"Support for {file_type} not implemented.")
 
 
 def is_pdf_file(parser, arg):
@@ -144,6 +188,7 @@ def is_pdf_file(parser, arg):
         parser.error(f"The file {arg} is not a pdf!")
     else:
         return arg
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Script to read statement pdf files and give a summary of totals per month.")
